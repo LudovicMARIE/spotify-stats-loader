@@ -19,4 +19,5 @@ def load_spotify_jsons(data_dir="../data"):
 
     # Merge all DataFrames
     df = pd.concat(dfs, ignore_index=True)
+    print("File gathering finished")
     return df

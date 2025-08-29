@@ -1,10 +1,11 @@
-from loader import load_spotify_jsons
-import arrow
+from processor import *
 
-df = load_spotify_jsons()
 
-# Convert time using arrow 
-df['played_at'] = df['ts'].apply(lambda t: arrow.get(t).datetime)
-df['minutes_played'] = df['ms_played'] / 60000
+# unique_songs_df = get_unique_songs()
+# print(unique_songs_df)
 
-print(df.count())
+
+unique_artists_df = get_unique_artists()
+print(unique_artists_df)
+
+
