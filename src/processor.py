@@ -10,26 +10,34 @@ df['played_at'] = df['ts'].apply(lambda t: arrow.get(t).datetime)
 sorted_df = df.sort_values(by="played_at")
 
 
+### Getters + filters
+
+# Get dataframe
+def get_raw_df():
+    return df
+
+# Get sorted dataframe
+def get_df():
+    return sorted_df
+
 # Filter df by year, month or/and day
-def filter_by_date(yearParam: int = None, monthParam: int = None, dayParam: int = None):
-    filtered_df = sorted_df
+def filter_by_date(dfParam, yearParam: int = None, monthParam: int = None, dayParam: int = None):
+    filtered_df = dfParam
 
     if yearParam is not None:
-        print("filtering year")
         filtered_df = filtered_df[filtered_df["played_at"].dt.year == yearParam]
 
     if monthParam is not None:
-        print("filtering month")
         filtered_df = filtered_df[filtered_df["played_at"].dt.month == monthParam]
         
     if dayParam is not None:
-        print("filtering day")
         filtered_df = filtered_df[filtered_df["played_at"].dt.day == dayParam]
 
     return filtered_df.reset_index(drop=True)
 
 # Filter df between two dates
-def filter_by_date_interval(startDateParam: str = None, endDateParam: str = None):
+def filter_by_date_interval(dfParam, startDateParam: str = None, endDateParam: str = None):
+    df_to_filter = dfParam
     if startDateParam is not None:
         startDate = arrow.get(startDateParam)
     else:
@@ -40,10 +48,19 @@ def filter_by_date_interval(startDateParam: str = None, endDateParam: str = None
     else:
         endDate = arrow.get(arrow.utcnow())
 
-    filtered_df = sorted_df[(df["played_at"] >= startDate.datetime) &
-                            (df["played_at"] < endDate.datetime)]
+    filtered_df = df_to_filter[(df_to_filter["played_at"] >= startDate.datetime) &
+                            (df_to_filter["played_at"] < endDate.datetime)]
 
     return filtered_df.reset_index(drop=True)
+
+# Filter df with artist
+def filter_by_artist(dfParam, artistParam: str):
+    return dfParam[dfParam["master_metadata_album_artist_name"] == artistParam]
+
+# Filter df with album
+def filter_by_album(dfParam, albumParam: str):
+    return dfParam[dfParam["master_metadata_album_album_name"] == albumParam]
+
 
 ### Unique stats and playcount
 
@@ -58,6 +75,7 @@ def get_unique_songs(dfParam):
 
     return song_stats
 
+
 # Get artists list with playcount, time listened, ordered by playcount
 def get_unique_artists(dfParam):
     artists_df = dfParam.groupby(["master_metadata_album_artist_name"]).agg(
@@ -69,5 +87,24 @@ def get_unique_artists(dfParam):
 
     return artists_df
 
-# def get_unique_songs_by_artist():
+# Get albums list with playcount, time listened, ordered by playcount
+def get_unique_albums(dfParam):
+    album_df = dfParam.groupby(["master_metadata_album_album_name"]).agg(
+        count=("ms_played", lambda x: (x >= 30000).sum()),
+        total_ms_played=("ms_played", "sum")
+    )
+    album_df["total_seconds_played"] = (album_df["total_ms_played"] / 1000).round().astype(int)
+    album_df = album_df.sort_values(by="count", ascending=False).reset_index()
+
+    return album_df
+
+# Get playcount by hours
+def get_playcount_by_hours(dfParam):
+    dfParam["hour"] = dfParam["played_at"].dt.hour
+
+    songs_per_hour = dfParam[dfParam["ms_played"] >= 30000].groupby("hour").size().reset_index(name="playcount")
+
+    return songs_per_hour
+
+    
 
