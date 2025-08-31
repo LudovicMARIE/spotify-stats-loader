@@ -106,5 +106,17 @@ def get_playcount_by_hours(dfParam):
 
     return songs_per_hour
 
-    
 
+
+
+# Get playcount by calendar day
+def get_playcount_by_calendar_day(dfParam):
+    dfParam["date"] = dfParam["played_at"].dt.date
+
+    playcount_per_calendar_day = dfParam.groupby(["date"]).agg(
+        count=("ms_played", lambda x: (x >= 30000).sum()),
+        total_ms_played=("ms_played", "sum")
+    )
+    playcount_per_calendar_day["total_seconds_played"] = (playcount_per_calendar_day["total_ms_played"] / 1000).round().astype(int)
+
+    return playcount_per_calendar_day
