@@ -120,3 +120,51 @@ def get_playcount_by_calendar_day(dfParam):
     playcount_per_calendar_day["total_seconds_played"] = (playcount_per_calendar_day["total_ms_played"] / 1000).round().astype(int)
 
     return playcount_per_calendar_day
+
+# Get playcount by week
+def get_playcount_by_week(dfParam):
+    playcount_per_week = (
+        dfParam.groupby(dfParam["played_at"].dt.to_period("W"))
+        .agg(
+            count=("ms_played", lambda x: (x >= 30000).sum()),
+            total_ms_played=("ms_played", "sum")
+        )
+    )
+
+    playcount_per_week["total_seconds_played"] = (
+        (playcount_per_week["total_ms_played"] / 1000).round().astype(int)
+    )
+
+    return playcount_per_week
+
+# Get playcount by month
+def get_playcount_by_month(dfParam):
+    playcount_per_month = (
+        dfParam.groupby(dfParam["played_at"].dt.to_period("M"))
+        .agg(
+            count=("ms_played", lambda x: (x >= 30000).sum()),
+            total_ms_played=("ms_played", "sum")
+        )
+    )
+
+    playcount_per_month["total_seconds_played"] = (
+        (playcount_per_month["total_ms_played"] / 1000).round().astype(int)
+    )
+
+    return playcount_per_month
+
+# Get playcount by year
+def get_playcount_by_year(dfParam):
+    playcount_per_year = (
+        dfParam.groupby(dfParam["played_at"].dt.to_period("Y"))
+        .agg(
+            count=("ms_played", lambda x: (x >= 30000).sum()),
+            total_ms_played=("ms_played", "sum")
+        )
+    )
+
+    playcount_per_year["total_seconds_played"] = (
+        (playcount_per_year["total_ms_played"] / 1000).round().astype(int)
+    )
+
+    return playcount_per_year

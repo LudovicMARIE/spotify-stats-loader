@@ -32,5 +32,15 @@ from processor import *
 # songs_per_hour = get_playcount_by_hours(get_df())
 # print(songs_per_hour)
 
-test = get_playcount_by_calendar_day(get_df())
+# test = get_playcount_by_calendar_day(get_df())
+# print(test)
+
+# test = get_playcount_by_week(get_df())
+# print(test)
+
+
+# test = get_playcount_by_month(get_df())
+# print(test)
+
+test = get_playcount_by_year(get_df())
 print(test)
